@@ -1,0 +1,26 @@
+[package]
+name = "llama-candle-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# candle specific dependencies
+candle-core = { git = "https://github.com/huggingface/candle.git", features = [
+  "cuda",
+], version = "0.3.1" }
+candle-nn = { git = "https://github.com/huggingface/candle.git", features = [
+  "cuda",
+], version = "0.3.1" }
+candle-transformers = { git = "https://github.com/huggingface/candle.git", features = [
+  "cuda",
+  "flash-attn",
+], version = "0.3.1" }
+tokenizers = "0.13.4"
+hf-hub = "0.3.2"
+# general dependencies
+serde = { version = "1.0.190", features = ["serde_derive"] }
+clap = { version = "4.4.7", features = ["derive"] }
+anyhow = "1.0.75"
+serde_json = "1.0.108"
