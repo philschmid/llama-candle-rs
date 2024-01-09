@@ -73,12 +73,12 @@ We have everything we need to run Llama on GPU using Candle. Now, we need our mo
 We can download the examples and replace our main.rs file with the example by running the following command:
 
 ```bash
-wget -O src/main.rs http://example.com/file.txt
+wget -O src/main.rs https://github.com/philschmid/llama-candle-rs/blob/master/examples/llama.rs
 ```
 
 Now, lets test it with the following command: 
 ```bash
-cargo run -- model-id NousResearch/Llama-2-7b-chat-hf
+cargo run -- --model-id philschmid/Llama-2-7b-chat-hf --prompt 'Write helloworld code in Rust' --sample-len 150
 ```
 
 _Note: The code only works with 7B models since we "hardcoded" the modelling file names._

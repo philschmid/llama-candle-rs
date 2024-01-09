@@ -5,8 +5,10 @@ use candle_core::utils::{cuda_is_available, metal_is_available};
 use candle_core::{DType, Device, Tensor};
 use candle_nn::VarBuilder;
 use candle_transformers::generation::LogitsProcessor;
+use hf_hub::api::sync::ApiBuilder;
 use hf_hub::{api::sync::Api, Repo, RepoType};
 use std::io::Write;
+use std::path::PathBuf;
 use tokenizers::Tokenizer;
 
 use candle_transformers::models::llama as model;
@@ -23,6 +25,31 @@ pub fn device() -> Result<Device> {
     } else {
         Ok(Device::Cpu)
     }
+}
+
+pub fn load_weights_from_hub(
+    repository_id: &str,
+    huggingface_token: Option<&str>,
+    revision: Option<&str>,
+) -> Result<PathBuf> {
+    // create API client
+    let api = ApiBuilder::new().with_token(huggingface_token).build()?;
+    // check if revision is provided if not use "main"
+    let _revision = revision.unwrap_or("main");
+    let repo = api.repo(Repo::with_revision(
+        repository_id,
+        RepoType::Model,
+        _revision,
+    ));
+
+    // Load Tokenizer file and config.json
+    let tokenizer_file = repo.get("tokenizer.json")?;
+    let config_file = repo.get("config.json")?;
+    // check model files return error if no safetensors or gguf file is found
+    let model_files = repo.get_model_files()?;
+    let config_filename = model_files
+        .get("config.json")
+        .ok_or(E::msg("No config.json file found"))?;
 }
 
 #[derive(Parser, Debug)]
@@ -68,7 +95,7 @@ fn main() -> Result<()> {
     let api = Api::new()?;
     let model_id = args
         .model_id
-        .unwrap_or_else(|| "NousResearch/Llama-2-7b-chat-hf".to_string());
+        .unwrap_or_else(|| "philschmid/Llama-2-7b-chat-hf".to_string());
     println!("loading the model weights from {model_id}");
     let revision = "main".to_string();
     let api = api.repo(Repo::with_revision(model_id, RepoType::Model, revision));
